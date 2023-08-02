@@ -6,8 +6,11 @@ import static java.lang.Math.*;
 
 
 public class Matrix {
+    //  the number of rows in the matrix
     private final int rows;
+    //  the number of columns in the matrix
     private final int columns;
+    //  each row is represented by its corresponding vector
     private final Vector[] entries;
 
 
@@ -84,9 +87,7 @@ public class Matrix {
     //  construct a matrix with random numbers
     public Matrix (char mode, int r, int c) {
 
-        /*
-        rows must be in [2,rowLimit], columns must be in [2,columnLimit]
-         */
+        //  matrix of specified dimensions
         Random random = new Random();
         if (mode == 's') {
             rows = r;
@@ -96,6 +97,8 @@ public class Matrix {
                 entries[i] = new Vector('r',columns);
             }
         }
+        //  random dimensions
+        //  rows must be in [2,r], columns must be in [2,c]
         else {
             rows = random.nextInt(r-1) + 2;
             columns = random.nextInt(c-1) + 2;
@@ -135,7 +138,7 @@ public class Matrix {
         return columns;
     }
 
-    //  get a 2D array of all the entries
+    //  get an array of all the row vectors
     public Vector[] getEntries() {
         return entries;
     }
@@ -155,7 +158,7 @@ public class Matrix {
         entries[r1] = entries[r2];
         entries[r2] = temp;
     }
-    private void multiplyRowByScalar (int r, double k) {
+    private void scalMultRow (double k, int r) {
         entries[r] = Vector.scalMult(k, entries[r]);
     }
 
@@ -163,42 +166,49 @@ public class Matrix {
     private void addRows (int targetRow, int r, double k) {
         entries[targetRow] = Vector.add(entries[targetRow], Vector.scalMult(k, entries[r]));
     }
-    private void addRows (int targetRow, int r) {
-        entries[targetRow] = Vector.add(entries[targetRow], entries[r]);
-    }
+
+    //  set the pivot entry to 1 by dividing the
     private void setLeadingNumOne (int r) {
+        //  iterate through each entry in a row
         for (int i = 0; i < columns; i++) {
-            double differenceToZero = abs(getValue(r,i));
-            if (differenceToZero >= 1E-10) {
-                entries[r] = Vector.scalMult(1 / getValue(r,i), entries[r]);
+            //  diffToZero is to account for any floating point inaccuracies
+            double diffToZero = abs(getValue(r,i));
+            if (diffToZero >= 1E-7) {
+                //  divide each entry in the row by its pivot
+                scalMultRow(1 / getValue(r,i), r);
                 break;
             }
         }
         round();
     }
+
+    //  round all entries to either 1 or 0
     private void round () {
+        //  iterate through each row
         for (int i = 0 ; i < rows; i++) {
+            //  iterate through each entry in a row
             for (int j = 0; j < columns; j++) {
-                double differenceToZero = abs(getValue(i,j));
-                double differenceToOne = abs(getValue(i,j) - 1);
-                if (differenceToZero <= 1E-10) {
+                double diffToZero = abs(getValue(i,j));
+                double diffToOne = abs(getValue(i,j) - 1);
+                if (diffToZero <= 1E-7) {
                     entries[i] = entries[i].replace(j,0);
                 }
-                else if (differenceToOne <= 1E-10) {
+                else if (diffToOne <= 1E-7) {
                     entries[i] = entries[i].replace(j,1);;
                 }
             }
         }
     }
-    private int sortNullRows () {
-        /*go down the rows with i
-        * when encountering a null row, attempt to swap with the bottom row
-        * if the bottom row is a null row, attempt to swap with a row above that row
-        * */
 
+    //  move all rows of 0's to the bottom of the matrix, also outputs the number of zero rows
+    private int sortZeroRows () {
+        //  iterate through the rows from the top to the bottom
         for (int i = 0; i < rows; i++) {
+            //  encountering a zero row
             if (entries[i].isNull()) {
+                //  iterate through the rows from the bottom and stop before reaching the ith row
                 for (int j = rows - 1; j > i; j--) {
+                    //  swap rows if the ith row is null but the jth row is not
                     if (!entries[j].isNull()) {
                         switchRows(i,j);
                         break;
@@ -216,11 +226,25 @@ public class Matrix {
         }
         return numNullRows;
     }
-    private void sort () {
-        int numNonNullRows = rows - sortNullRows();
 
-        //  get an array of the indices of leading nonzero entries in order of rows
+    //  get the index of the pivot in a given row
+    private int getPivotIndex (int r) {
+        for (int i = 0; i < columns; i++) {
+            if (getValue(r,i) != 0) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    //  sort the matrix so that all the zero rows are at the bottom and all the other rows have cascading pivots
+    public void sort () {
+        //  get the number of zero rows and the number of non-zero rows
+        int numNonNullRows = rows - sortZeroRows();
+
+        //  get an array of the indices of pivots in order of rows
         int[] pivotIndices = new int[numNonNullRows];
+        //  iterate through the non-zero rows
         for (int i = 0; i < numNonNullRows; i++) {
             for (int j = 0; j < numNonNullRows; j++) {
                 if (getValue(i,j) != 0) {
@@ -482,29 +506,6 @@ public class Matrix {
             System.out.println("Invalid Dimensions: Cannot get the trace of a non-square matrix");
         }
         return trace;
-    }
-
-    //  get a section of the Matrix
-    public Matrix section (int rowLower, int rowUpper, int columnLower, int columnUpper) {
-        if (rowLower >= 0 && rowUpper <= rows && columnLower >= 0 && columnUpper <= columns) {
-            int rowRange = rowUpper - rowLower;
-            int columnRange = columnUpper - columnLower;
-            Matrix subMatrix = new Matrix(rowRange, columnRange);
-            int i = 0;
-            for (int j = rowLower; j < rowUpper; j++) {
-                subMatrix.entries[i] = entries[j].section(columnLower, columnUpper);
-                i++;
-            }
-            return subMatrix;
-        }
-        else {
-            String rowString = "[" + rowLower + ":" + rowUpper + "]";
-            String columnString = "[" + columnLower + ":" + columnUpper + "]";
-            String subDim = rowString + " x " + columnString;
-            String aDim = rows + " by " + columns;
-            System.out.println("Invalid Arguments: Cannot get the " + subDim + " section of a " + aDim + " matrix");
-            return new Matrix(1,1);
-        }
     }
 
 
