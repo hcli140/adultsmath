@@ -4,14 +4,13 @@ import java.util.Arrays;
 
 import static java.lang.Math.*;
 
-
+//  Main class is used for testing other classes and methods
 
 public class Main {
     public static void main(String[] args) {
-        Matrix m = new Matrix(new double[][]{{0,0,-2},{1,2,1},{1,0,3}});
+        Matrix m = new Matrix(new double[][]{{6,2,3},{4,-1,9},{8,-2,0}});
         System.out.println(m + "\n");
-        System.out.println(m.eig());
-        //System.out.println(m.minorCharPoly(0,0));
-        //System.out.println(new Vector(m.eigenvalues()));
+        //m.sort();
+        System.out.println(m.reduceREF());
     }
 }

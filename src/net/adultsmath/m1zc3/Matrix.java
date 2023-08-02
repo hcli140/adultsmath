@@ -239,70 +239,67 @@ public class Matrix {
 
     //  sort the matrix so that all the zero rows are at the bottom and all the other rows have cascading pivots
     public void sort () {
-        //  get the number of zero rows and the number of non-zero rows
+        //  get the number of non-zero rows
         int numNonNullRows = rows - sortZeroRows();
 
         //  get an array of the indices of pivots in order of rows
         int[] pivotIndices = new int[numNonNullRows];
-        //  iterate through the non-zero rows
         for (int i = 0; i < numNonNullRows; i++) {
-            for (int j = 0; j < numNonNullRows; j++) {
-                if (getValue(i,j) != 0) {
-                    pivotIndices[i] = j;
-                    break;
-                }
-            }
+            pivotIndices[i] = getPivotIndex(i);
         }
 
-        //  sort the rows
-        for (int k = 0; k < numNonNullRows; k++) {
-            for (int l = k + 1; l < numNonNullRows; l++) {
-                if (pivotIndices[k] > pivotIndices[l]) {
-
-                    //  swapping the indices in the array
-                    int temp = pivotIndices[k];
-                    pivotIndices[k] = pivotIndices[l];
-                    pivotIndices[l] = temp;
-
-                    //  swapping the rows
-                    switchRows(k,l);
+        //  sort the rows using selection sort
+        //  pivot indices in ascending order
+        for (int i = 0; i < numNonNullRows; i++) {
+            //  find the minimum in the remaining elements
+            int min = pivotIndices[i];
+            for (int j = i + 1; j < numNonNullRows; j++) {
+                if (pivotIndices[j] < min) {
+                    //  set a new minimum
+                    min = pivotIndices[j];
                 }
             }
+            //  swap the current entry with the min
+            //  swapping in the array
+            int temp = pivotIndices[i];
+            pivotIndices[i] = pivotIndices[min];
+            pivotIndices[min] = temp;
+
+            //  swapping the rows
+            switchRows(i,min);
         }
     }
 
-    //  create the same system in row-echelon form
+    //  return the matrix in row-echelon form
     public Matrix reduceREF () {
         Matrix m = this;
-
         m.sort();
 
         //  get leading 1's in cascading pattern
+        //  iterate through the rows top to bottom
         for (int i = 0; i < m.rows; i++) {
 
-            //System.out.println("i = " + i);
-            //  get leading 0's
-            for (int j = 0; j < i; j++) {
-                if (!m.entries[i].isNull()) {
-                    //System.out.println("j = " + j);
-                    //System.out.println("Before add:\n" + m.display());
+            System.out.println("i = " + i + "\n");
+
+            if (!m.entries[i].isNull()) {
+                //  get leading 0's
+                //  iterate through the rows from the top and stop before reaching the ith row
+                for (int j = 0; j < i; j++) {
 
                     double constant = m.getValue(i,j);
                     m.addRows(i, j,-constant);
 
-                    //System.out.println("After add:\n" + m.display());
                 }
             }
 
             //  get a leading 1
             m.setLeadingNumOne(i);
-            //System.out.println("Final form of current i = " + i + "\n" + m.display() + "\n");
         }
 
         return m;
     }
 
-    //  create the same system in reduced row-echelon form
+    //  return the matrix in reduced row-echelon form
     public Matrix reduceRREF () {
         //  get to REF
         Matrix m = this.reduceREF();
@@ -402,20 +399,17 @@ public class Matrix {
     //  test if matrix is symmetric
     public boolean isSymmetric () {
         if (isSquare()) {
-            for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < columns; j++) {
-                    double currentEntry = getValue(i,j);
-                    double oppositeEntry = getValue(j,i);
-                    if (currentEntry != oppositeEntry) {
-                        return false;
-                    }
-                }
+            Matrix a = transpose(this);
+            if (isIdentical(a,this)) {
+                return true;
+            }
+            else {
+                return false;
             }
         }
         else {
             return false;
         }
-        return true;
     }
 
     //  test if matrix is invertible
