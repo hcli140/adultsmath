@@ -45,6 +45,7 @@ public class Polynomial {
         return degree;
     }
 
+    @Override
     public String toString () {
         StringBuilder sb = new StringBuilder();
         //  first term

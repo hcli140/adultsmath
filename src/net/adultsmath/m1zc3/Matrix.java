@@ -11,7 +11,7 @@ public class Matrix {
     //  the number of columns in the matrix
     private final int columns;
     //  each row is represented by its corresponding vector
-    private final Vector[] entries;
+    private final VectorRn[] entries;
 
 
 
@@ -26,9 +26,9 @@ public class Matrix {
     public Matrix (double[][] inputs) {
         rows = inputs.length;
         columns = inputs[0].length;
-        entries = new Vector[rows];
+        entries = new VectorRn[rows];
         for (int i = 0; i < rows; i++) {
-            Vector v = new Vector(inputs[i]);
+            VectorRn v = new VectorRn(inputs[i]);
             if (v.getSpaceR() == columns) {
                 entries[i] = v;
             }
@@ -39,10 +39,10 @@ public class Matrix {
     }
 
     //  construct from an array of row vectors
-    public Matrix (Vector... vectors) {
+    public Matrix (VectorRn... vectors) {
         rows = vectors.length;
         columns = vectors[0].getSpaceR();
-        entries = new Vector[rows];
+        entries = new VectorRn[rows];
         for (int i = 0; i < rows; i++) {
             if (vectors[i].getSpaceR() == columns) {
                 entries[i] = vectors[i];
@@ -57,9 +57,9 @@ public class Matrix {
     public Matrix (int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
-        entries = new Vector[rows];
+        entries = new VectorRn[rows];
         for (int i = 0; i < rows; i++) {
-            entries[i] = new Vector('0',columns);
+            entries[i] = new VectorRn('0',columns);
         }
     }
 
@@ -67,7 +67,7 @@ public class Matrix {
     public Matrix (int size) {
         rows = size;
         columns = size;
-        entries = new Vector[size];
+        entries = new VectorRn[size];
         double[][] matrix = new double[size][size];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -80,7 +80,7 @@ public class Matrix {
             }
         }
         for (int k = 0; k < size; k++) {
-            entries[k] = new Vector(matrix[k]);
+            entries[k] = new VectorRn(matrix[k]);
         }
     }
 
@@ -92,9 +92,9 @@ public class Matrix {
         if (mode == 's') {
             rows = r;
             columns = c;
-            entries = new Vector[rows];
+            entries = new VectorRn[rows];
             for (int i = 0; i < rows; i++) {
-                entries[i] = new Vector('r',columns);
+                entries[i] = new VectorRn('r',columns);
             }
         }
         //  random dimensions
@@ -102,9 +102,9 @@ public class Matrix {
         else {
             rows = random.nextInt(r-1) + 2;
             columns = random.nextInt(c-1) + 2;
-            entries = new Vector[rows];
+            entries = new VectorRn[rows];
             for (int i = 0; i < rows; i++) {
-                entries[i] = new Vector('r',columns);
+                entries[i] = new VectorRn('r',columns);
             }
         }
     }
@@ -115,17 +115,17 @@ public class Matrix {
     }
 
     //  get a row
-    public Vector getRow (int r) {
+    public VectorRn getRow (int r) {
         return entries[r];
     }
 
     //  get a column
-    public Vector getColumn (int c) {
+    public VectorRn getColumn (int c) {
         double[] column = new double[rows];
         for (int i = 0; i < rows; i++) {
             column[i] = getValue(i,c);
         }
-        return new Vector(column);
+        return new VectorRn(column);
     }
 
     //  get the number of rows
@@ -139,9 +139,15 @@ public class Matrix {
     }
 
     //  get an array of all the row vectors
-    public Vector[] getEntries() {
+    public VectorRn[] getEntries() {
         return entries;
     }
+
+
+
+
+
+    //
 
 
 
@@ -154,17 +160,17 @@ public class Matrix {
 
     //  GAUSS-JORDAN ELIMINATION
     private void switchRows (int r1, int r2) {
-        Vector temp = entries[r1];
+        VectorRn temp = entries[r1];
         entries[r1] = entries[r2];
         entries[r2] = temp;
     }
     private void scalMultRow (double k, int r) {
-        entries[r] = Vector.scalMult(k, entries[r]);
+        entries[r] = VectorRn.scalMult(k, entries[r]);
     }
 
     //  replace targetRow by targetRow + k * r
     private void addRows (int targetRow, int r, double k) {
-        entries[targetRow] = Vector.add(entries[targetRow], Vector.scalMult(k, entries[r]));
+        entries[targetRow] = VectorRn.add(entries[targetRow], VectorRn.scalMult(k, entries[r]));
     }
 
     //  set the pivot entry to 1 by dividing the
@@ -425,13 +431,13 @@ public class Matrix {
 
 
 
-    //  MATRIX OPERATIONS
+    //  STATIC METHODS MATRIX OPERATIONS
     //  a + b
     public static Matrix add (Matrix a, Matrix b) {
         if (a.rows == b.rows && a.columns == b.columns) {
             Matrix sum = new Matrix(a.rows, a.columns);
             for (int i = 0; i < a.rows; i++) {
-                sum.entries[i] = Vector.add(a.entries[i], b.entries[i]);
+                sum.entries[i] = VectorRn.add(a.entries[i], b.entries[i]);
             }
             return sum;
         }
@@ -450,24 +456,18 @@ public class Matrix {
     public static Matrix scalMult (double k, Matrix a) {
         Matrix newMatrix = new Matrix(a.rows, a.columns);
         for (int i = 0; i < a.rows; i++) {
-            newMatrix.entries[i] = Vector.scalMult(k, a.entries[i]);
+            newMatrix.entries[i] = VectorRn.scalMult(k, a.entries[i]);
         }
         return newMatrix;
     }
 
-    //  multiply
+    //  multiply a * b
     public static Matrix multiply (Matrix a, Matrix b) {
-        if (a.isIdentity()) {
-            return b;
-        }
-        else if (b.isIdentity()) {
-            return a;
-        }
-        else if (a.columns == b.rows) {
+        if (a.columns == b.rows) {
             Matrix product = new Matrix(a.rows, b.columns);
             for (int i = 0; i < a.rows; i++) {
                 for (int j = 0; j < b.columns; j++) {
-                    product.entries[i] = product.entries[i].replace(j,Vector.dot(a.entries[i],b.getColumn(j)));
+                    product.entries[i] = product.entries[i].replace(j, VectorRn.dot(a.entries[i],b.getColumn(j)));
                 }
             }
             return product;
@@ -500,6 +500,21 @@ public class Matrix {
             System.out.println("Invalid Dimensions: Cannot get the trace of a non-square matrix");
         }
         return trace;
+    }
+
+    //  test if two matrices are identical
+    public static boolean isIdentical (Matrix a, Matrix b) {
+        if (a.rows == b.rows && a.columns == b.columns) {
+            for (int i = 0; i < a.rows; i++) {
+                if (!VectorRn.isIdentical(a.entries[i], b.entries[i])) {
+                    return false;
+                }
+            }
+        }
+        else {
+            return false;
+        }
+        return true;
     }
 
 
@@ -688,8 +703,8 @@ public class Matrix {
     //  not done yet
     public Matrix[] eig () {
         double[] eVal = eigenvalues();
-        System.out.println(new Vector(eVal) + "\n");
-        ArrayList<Vector> eVec = new ArrayList<Vector>();
+        System.out.println(new VectorRn(eVal) + "\n");
+        ArrayList<VectorRn> eVec = new ArrayList<VectorRn>();
         Matrix I = new Matrix(rows);
         Matrix a;
         Matrix b;
@@ -719,22 +734,10 @@ public class Matrix {
 
 
 
-    //  test if two matrices are identical
-    public static boolean isIdentical (Matrix a, Matrix b) {
-        if (a.rows == b.rows && a.columns == b.columns) {
-            for (int i = 0; i < a.rows; i++) {
-                if (!Vector.isIdentical(a.entries[i], b.entries[i])) {
-                    return false;
-                }
-            }
-        }
-        else {
-            return false;
-        }
-        return true;
-    }
+
 
     //  display matrix as a String
+    @Override
     public String toString () {
         String display = "";
         for (int i = 0; i < rows; i++) {

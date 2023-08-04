@@ -1,14 +1,14 @@
 package net.adultsmath.m1zc3.r3;
 
-import net.adultsmath.m1zc3.Vector;
-import static net.adultsmath.m1zc3.Vector.*;
+import net.adultsmath.m1zc3.VectorRn;
+import static net.adultsmath.m1zc3.VectorRn.*;
 
 public class Line {
     private Point p0;
-    private final Vector v;
+    private final VectorRn v;
 
     //  construct from a point and a vector
-    public Line (Point p, Vector v) {
+    public Line (Point p, VectorRn v) {
         p0 = p;
         this.v = v.copy(3);
     }
@@ -41,7 +41,7 @@ public class Line {
 
     //  get the point on the line closest to a specified point
     public Point getPointClosestTo (Point p) {
-        Vector u = neg(orth(p0.getVectorTo(p),v));
+        VectorRn u = neg(orth(p0.getVectorTo(p),v));
         return p.getPointFromVector(u);
     }
 

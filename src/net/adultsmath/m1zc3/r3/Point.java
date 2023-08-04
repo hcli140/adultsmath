@@ -1,6 +1,6 @@
 package net.adultsmath.m1zc3.r3;
 
-import net.adultsmath.m1zc3.Vector;
+import net.adultsmath.m1zc3.VectorRn;
 
 public class Point {
     private final double x;
@@ -36,15 +36,15 @@ public class Point {
     }
 
     //  get the vector from this to another point
-    public Vector getVectorTo (Point p) {
+    public VectorRn getVectorTo (Point p) {
         double dx = p.x - this.x;
         double dy = p.y - this.y;
         double dz = p.z - this.z;
-        return new Vector(dx, dy, dz);
+        return new VectorRn(dx, dy, dz);
     }
 
     //  get the point from this point and a vector
-    public Point getPointFromVector (Vector v) {
+    public Point getPointFromVector (VectorRn v) {
         double x = this.x + v.getComps(0);
         double y = this.y + v.getComps(1);
         double z = this.z + v.getComps(2);

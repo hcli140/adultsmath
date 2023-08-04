@@ -249,6 +249,7 @@ public class PolynomialMatrix {
 
 
 
+    @Override
     public String toString () {
         String display = "";
         for (int i = 0; i < rows; i++) {

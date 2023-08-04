@@ -3,7 +3,7 @@ package net.adultsmath.m1zc3;
 import static java.lang.Math.*;
 import java.util.Random;
 
-public class Vector {
+public class VectorRn {
     private final double[] comps;
     private final int spaceR;
 
@@ -17,7 +17,7 @@ public class Vector {
 
     //  CONSTRUCTORS AND GETTERS
     //  construct from an array of values
-    public Vector (double... values) {
+    public VectorRn (double... values) {
         spaceR = values.length;
         comps = new double[spaceR];
         for (int i = 0; i < spaceR; i++) {
@@ -26,7 +26,7 @@ public class Vector {
     }
 
     //  construct a null vector or a vector with random integers in a specified space Rn
-    public Vector (char mode, int n) {
+    public VectorRn (char mode, int n) {
         spaceR = n;
         comps = new double[spaceR];
         Random random = new Random();
@@ -68,7 +68,7 @@ public class Vector {
 
     //  MANIPULATIONS
     //  make a copy in a specified space Rn ---> remove components or add 0's
-    public Vector copy (int n) {
+    public VectorRn copy (int n) {
         double[] newComps = new double[n];
         for (int i = 0; i < newComps.length; i++) {
             try {
@@ -78,11 +78,11 @@ public class Vector {
                 newComps[i] = 0;
             }
         }
-        return new Vector(newComps);
+        return new VectorRn(newComps);
     }
 
     //  replace a component
-    public Vector replace (int n, double a) {
+    public VectorRn replace (int n, double a) {
         double[] newComps = new double[spaceR];
         for (int i = 0; i < newComps.length; i++) {
             if (i == n) {
@@ -92,11 +92,11 @@ public class Vector {
                 newComps[i] = comps[i];
             }
         }
-        return new Vector(newComps);
+        return new VectorRn(newComps);
     }
 
     //  insert a component at a specified index
-    public Vector insert (int n, double a) {
+    public VectorRn insert (int n, double a) {
         double[] newComps;
         if (n <= spaceR) {
             newComps = new double[spaceR + 1];
@@ -116,22 +116,22 @@ public class Vector {
             }
         }
         newComps[n] = a;
-        return new Vector(newComps);
+        return new VectorRn(newComps);
     }
 
     //  get a section of the vector
-    public Vector section (int lower, int upper) {
+    public VectorRn section (int lower, int upper) {
         double[] newComps = new double[upper - lower];
         int i = 0;
         for (int j = lower; j < upper; j++) {
             newComps[i] = comps[j];
             i++;
         }
-        return new Vector(newComps);
+        return new VectorRn(newComps);
     }
 
     //  remove a component
-    public Vector remove (int index) {
+    public VectorRn remove (int index) {
         double[] newComps = new double[spaceR - 1];
         int i = 0;
         for (int j = 0; j < newComps.length; j++) {
@@ -143,7 +143,7 @@ public class Vector {
             }
             i++;
         }
-        return new Vector(newComps);
+        return new VectorRn(newComps);
     }
 
     //  check if the vector is a null vector
@@ -166,7 +166,7 @@ public class Vector {
 
     //  VECTOR OPERATIONS
     //  norm ||v||
-    public static double norm (Vector v) {
+    public static double norm (VectorRn v) {
         double norm;
         double sumOfSquares = 0;
         for (int i = 0; i < v.spaceR; i++) {
@@ -176,14 +176,14 @@ public class Vector {
     }
 
     //  addition u + v
-    public static Vector add (Vector u, Vector v) {
+    public static VectorRn add (VectorRn u, VectorRn v) {
         double[] resultComponents;
         if (u.spaceR == v.spaceR) {
             resultComponents = new double[u.spaceR];
             for (int i = 0; i < u.spaceR; i++) {
                 resultComponents[i] = u.comps[i] + v.comps[i];
             }
-            return new Vector(resultComponents);
+            return new VectorRn(resultComponents);
         }
         else {
             System.out.println("Invalid Dimensions: Cannot add vectors of different sizes");
@@ -192,26 +192,26 @@ public class Vector {
     }
 
     //  subtraction u - v
-    public static Vector subtract (Vector u, Vector v) {
+    public static VectorRn subtract (VectorRn u, VectorRn v) {
         return add(u,neg(v));
     }
 
     //  scalar multiplication k * v
-    public static Vector scalMult (double k, Vector v) {
+    public static VectorRn scalMult (double k, VectorRn v) {
         double[] resultComponents = new double[v.spaceR];
         for (int i = 0; i < v.spaceR; i++) {
             resultComponents[i] = k * v.comps[i];
         }
-        return new Vector(resultComponents);
+        return new VectorRn(resultComponents);
     }
 
     //  negative -v
-    public static Vector neg (Vector v) {
+    public static VectorRn neg (VectorRn v) {
         return scalMult(-1, v);
     }
 
     //  dot product u dot v
-    public static double dot (Vector u, Vector v) {
+    public static double dot (VectorRn u, VectorRn v) {
         double product = 0;
         if (u.spaceR == v.spaceR) {
             for (int i = 0; i < u.spaceR; i++) {
@@ -225,12 +225,12 @@ public class Vector {
     }
 
     //  cross product u x v
-    public static Vector cross (Vector u, Vector v) {
+    public static VectorRn cross (VectorRn u, VectorRn v) {
         if (u.spaceR == 3 && v.spaceR == 3) {
             double x = u.comps[1] * v.comps[2] - u.comps[2] * v.comps[1];
             double y = u.comps[2] * v.comps[0] - u.comps[0] * v.comps[2];
             double z = u.comps[0] * v.comps[1] - u.comps[1] * v.comps[0];
-            return new Vector(x, y, z);
+            return new VectorRn(x, y, z);
         }
         else {
             System.out.println("Invalid Dimensions: Cannot cross vectors not in R3");
@@ -239,24 +239,24 @@ public class Vector {
     }
 
     //  projection u onto v
-    public static Vector proj (Vector u, Vector v) {
+    public static VectorRn proj (VectorRn u, VectorRn v) {
         double k = dot(u, v) / pow(norm(v),2);
         return scalMult(k, v);
     }
 
     //  component of u orthogonal to v
-    public static Vector orth (Vector u, Vector v) {
+    public static VectorRn orth (VectorRn u, VectorRn v) {
         return subtract(u, proj(u, v));
     }
 
     //  unit vector
-    public static Vector unit (Vector v) {
+    public static VectorRn unit (VectorRn v) {
         double k = 1 / norm(v);
         return scalMult(k, v);
     }
 
     //  test if two vectors are identical
-    public static boolean isIdentical (Vector u, Vector v) {
+    public static boolean isIdentical (VectorRn u, VectorRn v) {
         if (u.spaceR == v. spaceR) {
             for (int i = 0; i < u.spaceR; i++) {
                 if (u.comps[i] != v.comps[i]) {
@@ -271,6 +271,7 @@ public class Vector {
     }
 
     //  show the vector as a string
+    @Override
     public String toString () {
         String outputString = "V(";
         for (int i = 0; i < spaceR; i++) {
