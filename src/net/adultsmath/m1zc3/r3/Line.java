@@ -1,7 +1,7 @@
 package net.adultsmath.m1zc3.r3;
 
+import net.adultsmath.m1zc3.Operator;
 import net.adultsmath.m1zc3.VectorRn;
-import static net.adultsmath.m1zc3.VectorRn.*;
 
 public class Line {
     private Point p0;
@@ -41,13 +41,13 @@ public class Line {
 
     //  get the point on the line closest to a specified point
     public Point getPointClosestTo (Point p) {
-        VectorRn u = neg(orth(p0.getVectorTo(p),v));
+        VectorRn u = Operator.neg(Operator.orth(p0.getVectorTo(p),v));
         return p.getPointFromVector(u);
     }
 
     //  get the shortest distance between the line and a specified point
     public double getShortestDistanceTo (Point p) {
-        return norm(orth(p0.getVectorTo(p),v));
+        return Operator.orth(p0.getVectorTo(p),v).norm();
     }
 
     //  show parametric equations

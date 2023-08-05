@@ -23,14 +23,14 @@ public class Polynomial {
             }
         }
         this.coeffs = new double[coeffs.length - trailZeroes];
-        degree = this.coeffs.length - 1;
-        for (int i = 0; i < coeffs.length - trailZeroes; i++) {
-            this.coeffs[i] = coeffs[i];
+        this.degree = this.coeffs.length - 1;
+        if (coeffs.length - trailZeroes >= 0) {
+            System.arraycopy(coeffs, 0, this.coeffs, 0, coeffs.length - trailZeroes);
         }
     }
     public Polynomial () {
-        degree = 0;
-        coeffs = new double[]{0};
+        this.degree = 0;
+        this.coeffs = new double[]{0};
     }
 
     //  getters
@@ -153,67 +153,10 @@ public class Polynomial {
         return deriv;
     }
 
-
-
-
-
-
-
-    //  adding two Polynomials
-    public static Polynomial add (Polynomial p1, Polynomial p2) {
-        double[] sumCoeffs;
-        if (p1.degree >= p2.degree) {
-            sumCoeffs = new double[p1.degree + 1];
-            for (int i = 0; i < p1.degree + 1; i++) {
-                try {
-                    sumCoeffs[i] = p1.coeffs[i] + p2.coeffs[i];
-                }
-                catch (ArrayIndexOutOfBoundsException e) {
-                    sumCoeffs[i] = p1.coeffs[i];
-                }
-            }
-        }
-        else {
-            sumCoeffs = new double[p2.degree + 1];
-            for (int i = 0; i < p2.degree + 1; i++) {
-                try {
-                    sumCoeffs[i] = p1.coeffs[i] + p2.coeffs[i];
-                }
-                catch (ArrayIndexOutOfBoundsException e) {
-                    sumCoeffs[i] = p2.coeffs[i];
-                }
-            }
-        }
-        return new Polynomial(sumCoeffs);
-    }
-
-    //  get the sum of multiply Polynomials
-    public static Polynomial sum (Polynomial... p) {
-        Polynomial sum = new Polynomial(0);
-        for (int i = 0; i < p.length; i++) {
-            sum = add(sum,p[i]);
-        }
-        return sum;
-    }
-
-    //  subtract Polynomials
-    public static Polynomial subtract (Polynomial p1, Polynomial p2) {
-        return add(p1,scalMult(-1,p2));
-    }
-
-    //  multiply a Polynomial by a scalar
-    public static Polynomial scalMult (double k, Polynomial p) {
-        double[] newCoeffs = new double[p.degree + 1];
-        for (int i = 0; i < p.degree + 1; i++) {
-            newCoeffs[i] = p.coeffs[i] * k;
-        }
-        return new Polynomial(newCoeffs);
-    }
-
     //  multiply a Polynomial by x^n
     //  ex. x^3(6x^2 + 1) = 6x^5 + x^3
     //  {1, 0, 6} --> {0, 0, 0, 1, 0, 6}        (n = 3)
-    private Polynomial xMultiply (int n) {
+    public Polynomial xMultiply (int n) {
         double[] newCoeffs = new double[degree + 1 + n];
         for (int i = 0; i < newCoeffs.length; i++) {
             if (i < n) {
@@ -224,32 +167,6 @@ public class Polynomial {
             }
         }
         return new Polynomial(newCoeffs);
-    }
-
-    //  multiplying two Polynomials
-    //  ex. (x + 3)(x^2 - 3x + 2) = x(x^2 - 3x + 2) + 3(x^2 - 3x + 2)
-    //  {3, 1} * {2, -3, 1} = {6, -9, 3} + {0, 2, -3, 1}
-    public static Polynomial multiply (Polynomial p1, Polynomial p2) {
-        Polynomial[] pAddends = new Polynomial[p1.degree + 1];
-        //  multiply p2 by each term in p1 by iterating through the indices of p1
-        for (int i = 0; i < p1.degree + 1; i++) {
-            pAddends[i] = scalMult(p1.coeffs[i],p2).xMultiply(i);
-        }
-        Polynomial pSum = new Polynomial(0);
-        //  add the addends together
-        for (int j = 0; j < pAddends.length; j++) {
-            pSum = add(pSum, pAddends[j]);
-        }
-        return pSum;
-    }
-
-    //  positive integer powers of Polynomials
-    public static Polynomial power (Polynomial p, int n) {
-        Polynomial result = new Polynomial(1);
-        for (int i = 0; i < n; i++) {
-            result = multiply(result, p);
-        }
-        return result;
     }
 
 
@@ -295,10 +212,10 @@ public class Polynomial {
         double r = (9*a*b*c - 27*a*a*d - 2*pow(b,3)) / (54*pow(a,3));
         double discriminant = pow(q,3) + pow(r,2);
         //  pick only one of the square roots
-        Complex sqrtDiscr = Complex.nthRoots(2,discriminant)[0];
+        Complex sqrtDiscr = Operator.nthRoots(2,discriminant)[0];
 
-        Complex[] s = Complex.nthRoots(3,Complex.add(r,sqrtDiscr));
-        Complex[] t = Complex.nthRoots(3,Complex.subtract(r,sqrtDiscr));
+        Complex[] s = Operator.nthRoots(3,Operator.add(r,sqrtDiscr));
+        Complex[] t = Operator.nthRoots(3,Operator.subtract(r,sqrtDiscr));
 
         ArrayList<Complex> rootsC = new ArrayList<Complex>();
         Complex x1;
@@ -308,23 +225,23 @@ public class Polynomial {
             for (int j = 0; j < 3; j++) {
 
                 //  x1
-                x1 = Complex.add(-b/(3*a),Complex.add(s[i], t[j]));
+                x1 = Operator.add(-b/(3*a),Operator.add(s[i], t[j]));
                 //System.out.println("x1 = " + x1);
                 if (x1.isReal()) {
                     rootsC.add(x1);
                 }
 
                 //  x2
-                Complex x2_1 = Complex.add(-b/(3*a),Complex.scalMult(-0.5,Complex.add(s[i],t[i])));
-                Complex x2_2 = Complex.multiply(new Complex(0,sqrt(3)/2),Complex.subtract(s[i],t[i]));
-                x2 = Complex.add(x2_1,x2_2);
+                Complex x2_1 = Operator.add(-b/(3*a),Operator.scalMult(-0.5,Operator.add(s[i],t[i])));
+                Complex x2_2 = Operator.multiply(new Complex(0,sqrt(3)/2),Operator.subtract(s[i],t[i]));
+                x2 = Operator.add(x2_1,x2_2);
                 //System.out.println("x2 = " + x2);
                 if (x2.isReal()) {
                     rootsC.add(x2);
                 }
 
                 //  x3
-                x3 = Complex.subtract(x2_1,x2_2);
+                x3 = Operator.subtract(x2_1,x2_2);
                 //System.out.println("x3 = " + x3 + "\n");
                 if (x3.isReal()) {
                     rootsC.add(x3);
@@ -379,7 +296,7 @@ public class Polynomial {
         //  https://mathworld.wolfram.com/QuarticEquation.html
         //  leading coefficient is removed by dividing the entire expression by it
         //  quartic equation becomes y^4 + ay^3 + by^2 + cy + d = 0
-        Polynomial poly = scalMult(1/coeffs[degree],this);
+        Polynomial poly = Operator.scalMult(1/coeffs[degree],this);
         double a = poly.coeffs[3];
         double b = poly.coeffs[2];
         double c = poly.coeffs[1];
@@ -404,8 +321,8 @@ public class Polynomial {
 
         //  P is quadratic in x and Q is linear in x
         //  P - Q and P + Q are both quadratic and their roots are the roots of the original quartic
-        Polynomial pPQ1 = add(pP,scalMult(-1,pQ));
-        Polynomial pPQ2 = add(pP,pQ);
+        Polynomial pPQ1 = Operator.add(pP,Operator.scalMult(-1,pQ));
+        Polynomial pPQ2 = Operator.add(pP,pQ);
         double[] r1 = pPQ1.quadraticMethod();
         double[] r2 = pPQ2.quadraticMethod();
         int r1Length;

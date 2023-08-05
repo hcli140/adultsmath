@@ -1,5 +1,6 @@
 package net.adultsmath.m1zc3.r3;
 
+import net.adultsmath.m1zc3.Operator;
 import net.adultsmath.m1zc3.VectorRn;
 import static net.adultsmath.m1zc3.VectorRn.*;
 
@@ -18,7 +19,7 @@ public class Plane {
         VectorRn u = p.getVectorTo(q);
         VectorRn v = p.getVectorTo(r);
         p0 = p;
-        n = cross(u, v);
+        n = Operator.cross(u, v);
     }
 
     //  test if a point is on the plane
@@ -34,11 +35,11 @@ public class Plane {
 
     //  get the point on the plane closest to a specified point
     public Point getPointClosestTo (Point p) {
-        return p.getPointFromVector(neg(proj(p0.getVectorTo(p), n)));
+        return p.getPointFromVector(Operator.neg(Operator.proj(p0.getVectorTo(p), n)));
     }
 
     //  get the shortest distance between the plane and a specified point
     public double getShortestDistanceTo (Point p) {
-        return norm(proj(p0.getVectorTo(p), n));
+        return Operator.proj(p0.getVectorTo(p), n).norm();
     }
 }

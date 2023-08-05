@@ -3,6 +3,7 @@ package net.adultsmath.m1zc3;
 import java.util.ArrayList;
 import java.util.Random;
 import static java.lang.Math.*;
+import net.adultsmath.m1zc3.Operator.*;
 
 
 public class Matrix {
@@ -165,12 +166,12 @@ public class Matrix {
         entries[r2] = temp;
     }
     private void scalMultRow (double k, int r) {
-        entries[r] = VectorRn.scalMult(k, entries[r]);
+        entries[r] = Operator.scalMult(k, entries[r]);
     }
 
     //  replace targetRow by targetRow + k * r
     private void addRows (int targetRow, int r, double k) {
-        entries[targetRow] = VectorRn.add(entries[targetRow], VectorRn.scalMult(k, entries[r]));
+        entries[targetRow] = Operator.add(entries[targetRow],Operator.scalMult(k, entries[r]));
     }
 
     //  set the pivot entry to 1 by dividing the
@@ -405,8 +406,8 @@ public class Matrix {
     //  test if matrix is symmetric
     public boolean isSymmetric () {
         if (isSquare()) {
-            Matrix a = transpose(this);
-            if (isIdentical(a,this)) {
+            Matrix m = this.transpose();
+            if (this.equalsTo(m)) {
                 return true;
             }
             else {
@@ -431,69 +432,24 @@ public class Matrix {
 
 
 
-    //  STATIC METHODS MATRIX OPERATIONS
-    //  a + b
-    public static Matrix add (Matrix a, Matrix b) {
-        if (a.rows == b.rows && a.columns == b.columns) {
-            Matrix sum = new Matrix(a.rows, a.columns);
-            for (int i = 0; i < a.rows; i++) {
-                sum.entries[i] = VectorRn.add(a.entries[i], b.entries[i]);
-            }
-            return sum;
-        }
-        else {
-            System.out.println("Invalid Dimensions: Cannot add matrices of different dimensions");
-            return null;
-        }
-    }
 
-    //  a - b
-    public static Matrix subtract (Matrix a, Matrix b) {
-        return add(a,scalMult(-1, b));
-    }
-
-    //  k * a
-    public static Matrix scalMult (double k, Matrix a) {
-        Matrix newMatrix = new Matrix(a.rows, a.columns);
-        for (int i = 0; i < a.rows; i++) {
-            newMatrix.entries[i] = VectorRn.scalMult(k, a.entries[i]);
-        }
-        return newMatrix;
-    }
-
-    //  multiply a * b
-    public static Matrix multiply (Matrix a, Matrix b) {
-        if (a.columns == b.rows) {
-            Matrix product = new Matrix(a.rows, b.columns);
-            for (int i = 0; i < a.rows; i++) {
-                for (int j = 0; j < b.columns; j++) {
-                    product.entries[i] = product.entries[i].replace(j, VectorRn.dot(a.entries[i],b.getColumn(j)));
-                }
-            }
-            return product;
-        }
-        else {
-            System.out.println("Invalid Dimensions: Cannot multiply matrices with these dimensions. The number of columns of the first matrix must match the number of rows of the second matrix");
-            return null;
-        }
-    }
 
     //  transpose
-    public static Matrix transpose (Matrix a) {
-        Matrix newMatrix = new Matrix(a.columns, a.rows);
-        for (int i = 0; i < a.columns; i++) {
+    public Matrix transpose () {
+        Matrix newMatrix = new Matrix(this.columns, this.rows);
+        for (int i = 0; i < this.columns; i++) {
             //System.out.println(a.getColumn(i).display());
-            newMatrix.entries[i] = a.getColumn(i);
+            newMatrix.entries[i] = this.getColumn(i);
         }
         return newMatrix;
     }
 
     //  get the trace
-    public static double trace (Matrix a) {
+    public double trace () {
         double trace = 0;
-        if (a.isSquare()) {
-            for (int i = 0; i < a.rows; i++) {
-                trace += a.getValue(i,i);
+        if (this.isSquare()) {
+            for (int i = 0; i < this.rows; i++) {
+                trace += this.getValue(i,i);
             }
         }
         else {
@@ -503,10 +459,10 @@ public class Matrix {
     }
 
     //  test if two matrices are identical
-    public static boolean isIdentical (Matrix a, Matrix b) {
-        if (a.rows == b.rows && a.columns == b.columns) {
-            for (int i = 0; i < a.rows; i++) {
-                if (!VectorRn.isIdentical(a.entries[i], b.entries[i])) {
+    public boolean equalsTo (Matrix m) {
+        if (this.rows == m.rows && this.columns == m.columns) {
+            for (int i = 0; i < this.rows; i++) {
+                if (!this.getRow(i).equalsTo(m.getRow(i))) {
                     return false;
                 }
             }
@@ -639,7 +595,7 @@ public class Matrix {
                     m.entries[i] = m.entries[i].replace(j,cofactor(i,j));
                 }
             }
-            return transpose(m);
+            return m.transpose();
         }
         else {
             System.out.println("Invalid Dimensions: Cannot get the adjoint of a non-square matrix");
@@ -651,7 +607,7 @@ public class Matrix {
     public Matrix inv () {
         if (isInvertible()) {
             double k = 1 / det();
-            return scalMult(k,adj());
+            return Operator.scalMult(k,adj());
         }
         else {
             System.out.println("Invalid Matrix: This matrix is not invertible");
@@ -709,7 +665,7 @@ public class Matrix {
         Matrix a;
         Matrix b;
         for (int i = 0; i < eVal.length; i++) {
-            a = subtract(scalMult(eVal[i],I),this);
+            a = Operator.subtract(Operator.scalMult(eVal[i],I),this);
             b = new Matrix(rows,columns+1);
             //  add a column of 0's on the right
             for (int j = 0; j < rows; j++) {

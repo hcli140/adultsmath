@@ -99,45 +99,6 @@ public class PolynomialMatrix {
 
 
 
-
-    //  STATIC METHODS
-    //  addition ---> a + b = c
-    public static PolynomialMatrix add (PolynomialMatrix a, PolynomialMatrix b) {
-        if (a.rows == b.rows && a.columns == b.columns) {
-            Polynomial[][] cEntries = new Polynomial[a.rows][a.columns];
-            for (int i = 0; i < a.rows; i++) {
-                for (int j = 0; j < a.columns; j++) {
-                    cEntries[i][j] = Polynomial.add(a.getValue(i,j),b.getValue(i,j));
-                }
-            }
-            return new PolynomialMatrix(cEntries);
-        }
-        else {
-            System.out.println("Invalid Dimensions: Cannot add polynomial matrices of different dimensions");
-            return null;
-        }
-    }
-
-    //  scalar multiplication
-    public static PolynomialMatrix scalMult (Polynomial p, PolynomialMatrix a) {
-        Polynomial[][] bEntries = new Polynomial[a.rows][a.columns];
-        for (int i = 0; i < a.rows; i++) {
-            for (int j = 0; j < a.columns; j++) {
-                bEntries[i][j] = Polynomial.multiply(p,a.getValue(i,j));
-            }
-        }
-        return new PolynomialMatrix(bEntries);
-    }
-    public static PolynomialMatrix scalMult (double k, PolynomialMatrix a) {
-        Polynomial[][] bEntries = new Polynomial[a.rows][a.columns];
-        for (int i = 0; i < a.rows; i++) {
-            for (int j = 0; j < a.columns; j++) {
-                bEntries[i][j] = Polynomial.multiply(new Polynomial(k),a.getValue(i,j));
-            }
-        }
-        return new PolynomialMatrix(bEntries);
-    }
-
     //  transpose
     public static PolynomialMatrix transpose (PolynomialMatrix a) {
         Polynomial[][] bEntries = new Polynomial[a.columns][a.rows];
@@ -202,7 +163,7 @@ public class PolynomialMatrix {
     }
     private Polynomial cofactor (int r, int c) {
         if (isSquare() && r < rows && c < columns) {
-            return Polynomial.scalMult(pow(-1,r+c),minor(r,c));
+            return Operator.scalMult(pow(-1,r+c),minor(r,c));
         }
         else {
             System.out.println("Invalid Dimensions: Cannot get the indicated cofactor");
@@ -213,10 +174,10 @@ public class PolynomialMatrix {
     //  to determinant of a 2 by 2 polynomial matrix
     private Polynomial det2X2 () {
         if (rows == 2 && columns == 2) {
-            Polynomial ad = Polynomial.multiply(getValue(0,0),getValue(1,1));
-            Polynomial bc = Polynomial.multiply(getValue(0,1),getValue(1,0));
+            Polynomial ad = Operator.multiply(getValue(0,0),getValue(1,1));
+            Polynomial bc = Operator.multiply(getValue(0,1),getValue(1,0));
             //System.out.println(Polynomial.subtract(ad,bc));
-            return Polynomial.subtract(ad,bc);
+            return Operator.subtract(ad,bc);
         }
         else {
             System.out.println("Invalid Dimensions: This method is for 2x2 polynomial matrices only");
@@ -236,7 +197,7 @@ public class PolynomialMatrix {
                 //  cofactor expansion along first row
                 Polynomial determinant = new Polynomial();
                 for (int i = 0; i < columns; i++) {
-                    determinant = Polynomial.add(determinant,Polynomial.multiply(getValue(0,i),cofactor(0,i)));
+                    determinant = Operator.add(determinant,Operator.multiply(getValue(0,i),cofactor(0,i)));
                 }
                 return determinant;
             }

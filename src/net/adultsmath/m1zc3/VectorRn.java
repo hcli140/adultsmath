@@ -156,6 +156,21 @@ public class VectorRn {
         return true;
     }
 
+    //  test if two vectors are identical
+    public boolean equalsTo (VectorRn v) {
+        if (this.getSpaceR() == v. getSpaceR()) {
+            for (int i = 0; i < this.getSpaceR(); i++) {
+                if (this.getComps(i) != v.getComps(i)) {
+                    return false;
+                }
+            }
+        }
+        else {
+            return false;
+        }
+        return true;
+    }
+
 
 
 
@@ -166,109 +181,24 @@ public class VectorRn {
 
     //  VECTOR OPERATIONS
     //  norm ||v||
-    public static double norm (VectorRn v) {
+    public double norm () {
         double norm;
         double sumOfSquares = 0;
-        for (int i = 0; i < v.spaceR; i++) {
-            sumOfSquares += v.comps[i] * v.comps[i];
+        for (int i = 0; i < this.getSpaceR(); i++) {
+            sumOfSquares += this.getComps(i) * this.getComps(i);
         }
         return norm = sqrt(sumOfSquares);
     }
-
-    //  addition u + v
-    public static VectorRn add (VectorRn u, VectorRn v) {
-        double[] resultComponents;
-        if (u.spaceR == v.spaceR) {
-            resultComponents = new double[u.spaceR];
-            for (int i = 0; i < u.spaceR; i++) {
-                resultComponents[i] = u.comps[i] + v.comps[i];
-            }
-            return new VectorRn(resultComponents);
-        }
-        else {
-            System.out.println("Invalid Dimensions: Cannot add vectors of different sizes");
-            return null;
-        }
+    public VectorRn unit () {
+        double k = 1 / this.norm();
+        return Operator.scalMult(k, this);
     }
 
-    //  subtraction u - v
-    public static VectorRn subtract (VectorRn u, VectorRn v) {
-        return add(u,neg(v));
-    }
 
-    //  scalar multiplication k * v
-    public static VectorRn scalMult (double k, VectorRn v) {
-        double[] resultComponents = new double[v.spaceR];
-        for (int i = 0; i < v.spaceR; i++) {
-            resultComponents[i] = k * v.comps[i];
-        }
-        return new VectorRn(resultComponents);
-    }
 
-    //  negative -v
-    public static VectorRn neg (VectorRn v) {
-        return scalMult(-1, v);
-    }
 
-    //  dot product u dot v
-    public static double dot (VectorRn u, VectorRn v) {
-        double product = 0;
-        if (u.spaceR == v.spaceR) {
-            for (int i = 0; i < u.spaceR; i++) {
-                product += u.comps[i] * v.comps[i];
-            }
-        }
-        else {
-            System.out.println("Invalid Dimensions: Cannot dot vectors of different sizes");
-        }
-        return product;
-    }
 
-    //  cross product u x v
-    public static VectorRn cross (VectorRn u, VectorRn v) {
-        if (u.spaceR == 3 && v.spaceR == 3) {
-            double x = u.comps[1] * v.comps[2] - u.comps[2] * v.comps[1];
-            double y = u.comps[2] * v.comps[0] - u.comps[0] * v.comps[2];
-            double z = u.comps[0] * v.comps[1] - u.comps[1] * v.comps[0];
-            return new VectorRn(x, y, z);
-        }
-        else {
-            System.out.println("Invalid Dimensions: Cannot cross vectors not in R3");
-            return null;
-        }
-    }
 
-    //  projection u onto v
-    public static VectorRn proj (VectorRn u, VectorRn v) {
-        double k = dot(u, v) / pow(norm(v),2);
-        return scalMult(k, v);
-    }
-
-    //  component of u orthogonal to v
-    public static VectorRn orth (VectorRn u, VectorRn v) {
-        return subtract(u, proj(u, v));
-    }
-
-    //  unit vector
-    public static VectorRn unit (VectorRn v) {
-        double k = 1 / norm(v);
-        return scalMult(k, v);
-    }
-
-    //  test if two vectors are identical
-    public static boolean isIdentical (VectorRn u, VectorRn v) {
-        if (u.spaceR == v. spaceR) {
-            for (int i = 0; i < u.spaceR; i++) {
-                if (u.comps[i] != v.comps[i]) {
-                    return false;
-                }
-            }
-        }
-        else {
-            return false;
-        }
-        return true;
-    }
 
     //  show the vector as a string
     @Override

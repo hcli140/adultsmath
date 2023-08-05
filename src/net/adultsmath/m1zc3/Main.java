@@ -12,5 +12,6 @@ public class Main {
         System.out.println(m + "\n");
         //m.sort();
         System.out.println(m.reduceREF());
+        VectorRn v = new VectorRn(1,2,3);
     }
 }
