@@ -25,7 +25,7 @@ public class Plane {
     //  test if a point is on the plane
     public boolean isPointOnPlane (Point p) {
         VectorRn v = p0.getVectorTo(p);
-        if (dot(v, n) == 0) {
+        if (Operator.dot(v, n) == 0) {
             return true;
         }
         else {
