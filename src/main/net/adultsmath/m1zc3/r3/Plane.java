@@ -1,30 +1,32 @@
-package net.adultsmath.m1zc3.r3;
+package main.net.adultsmath.m1zc3.r3;
 
-import net.adultsmath.m1zc3.Operator;
-import net.adultsmath.m1zc3.VectorRn;
-import static net.adultsmath.m1zc3.VectorRn.*;
+import main.net.adultsmath.m1zc3.Operator;
+import main.net.adultsmath.m1zc3.Vector;
 
 public class Plane {
-    private final VectorRn n;
+    private final Vector n;
     private final Point p0;
 
     //  construct from normal vector and point
-    public Plane (Point p, VectorRn n) {
+    public Plane (Point p, Vector n) {
         this.n = n;
         this.p0 = p;
     }
 
     //  construct from three points
     public Plane (Point p, Point q, Point r) {
-        VectorRn u = p.getVectorTo(q);
-        VectorRn v = p.getVectorTo(r);
+        Vector u = p.getVectorTo(q);
+        Vector v = p.getVectorTo(r);
         p0 = p;
         n = Operator.cross(u, v);
     }
 
+    public Vector getN() {return n;}
+    public Point getP0() {return p0;}
+
     //  test if a point is on the plane
     public boolean isPointOnPlane (Point p) {
-        VectorRn v = p0.getVectorTo(p);
+        Vector v = p0.getVectorTo(p);
         if (Operator.dot(v, n) == 0) {
             return true;
         }
@@ -40,6 +42,15 @@ public class Plane {
 
     //  get the shortest distance between the plane and a specified point
     public double getShortestDistanceTo (Point p) {
-        return Operator.proj(p0.getVectorTo(p), n).norm();
+        return Operator.proj(p0.getVectorTo(p), n).getNorm();
+    }
+
+    @Override
+    public boolean equals (Object obj) {
+        if (obj instanceof Plane) {
+            Plane plane = (Plane) obj;
+            return this.getN().isScalarMultiple(plane.getN()) && this.isPointOnPlane(plane.getP0());
+        }
+        return false;
     }
 }
