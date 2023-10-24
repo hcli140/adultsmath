@@ -15,6 +15,10 @@ public record LinearSystemSolution (SolutionType solutionType, Vector value, Vec
         NONE
     }
 
+    public LinearSystemSolution {
+        if (solutionType == SolutionType.INFINITE && solutionSet.getVectorSize() != value.getSize())
+            throw new ValueSolutionSetUnequalSizeException();
+    }
 
     public LinearSystemSolution(Vector value) {
         this(SolutionType.SINGLE, value, null);
@@ -32,7 +36,7 @@ public record LinearSystemSolution (SolutionType solutionType, Vector value, Vec
         this(SolutionType.NONE, null, null);
     }
 
-    public SolutionType getSolutionType() {
+    public SolutionType solutionType() {
         switch (this.solutionType) {
             case INFINITE, SINGLE, NONE -> {
                 return solutionType;
@@ -41,13 +45,13 @@ public record LinearSystemSolution (SolutionType solutionType, Vector value, Vec
         }
     }
 
-    public Vector getValue() {
-        if (Objects.equals(this.getSolutionType(), SolutionType.NONE)) throw new NoSolutionException();
+    public Vector value() {
+        if (Objects.equals(this.solutionType, SolutionType.NONE)) throw new NoSolutionException();
         return value;
     }
 
-    public VectorSet getSolutionSet() {
-        switch (this.getSolutionType()) {
+    public VectorSet solutionSet() {
+        switch (this.solutionType) {
             case NONE -> throw new NoSolutionException();
             case SINGLE -> throw new NoArbitraryUnknownsException();
             case INFINITE -> {
@@ -60,22 +64,18 @@ public record LinearSystemSolution (SolutionType solutionType, Vector value, Vec
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        if (this.getSolutionType() == SolutionType.INFINITE || this.getSolutionType() == SolutionType.SINGLE) {
+        if (this.solutionType == SolutionType.INFINITE || this.solutionType == SolutionType.SINGLE) {
             stringBuilder.append("(");
-            for (int i = 0; i < this.getValue().getSize(); i++) {
-                if (i != this.getValue().getSize() - 1) {
+            for (int i = 0; i < this.value.getSize(); i++) {
+                if (i != this.value.getSize() - 1) {
                     stringBuilder.append("x" + (i + 1) + ", ");
                 } else stringBuilder.append("x" + (i + 1) + ")");
             }
             stringBuilder.append(" =\n");
         }
-        switch (this.getSolutionType()) {
-            case SINGLE -> {
-                stringBuilder.append(this.getValue());
-            }
-            case INFINITE -> {
-                stringBuilder.append(this.getValue() + " + " + this.getSolutionSet());
-            }
+        switch (this.solutionType) {
+            case SINGLE -> stringBuilder.append(this.value);
+            case INFINITE -> stringBuilder.append(this.value + " + " + this.solutionSet);
             case NONE -> {
                 return "{NONE}";
             }
@@ -86,15 +86,21 @@ public record LinearSystemSolution (SolutionType solutionType, Vector value, Vec
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (obj instanceof LinearSystemSolution) {
-            LinearSystemSolution solution = (LinearSystemSolution) obj;
-            if (this.getSolutionType().equals(solution.getSolutionType())) {
-                if (this.getSolutionType() == SolutionType.NONE) {
-                    return true;
-                } else if (this.getSolutionType() == SolutionType.INFINITE) {
-                    return this.getValue().equals(solution.getValue()) &&
-                            this.getSolutionSet().equals(solution.getSolutionSet());
-                } else return this.getValue().equals(solution.getValue());
+        if (obj instanceof LinearSystemSolution solution) {
+            if (this.solutionType.equals(solution.solutionType)) {
+                switch (this.solutionType) {
+                    case NONE -> {
+                        return true;
+                    }
+                    case SINGLE -> {
+                        return this.value.equals(solution.value);
+                    }
+                    case INFINITE -> {
+                        return this.value.equals(solution.value) &&
+                                this.solutionSet.equals(solution.solutionSet);
+                    }
+                    default -> throw new UndeclaredSolutionTypeException();
+                }
             }
             return false;
         }
@@ -106,4 +112,6 @@ public record LinearSystemSolution (SolutionType solutionType, Vector value, Vec
     public static class NoArbitraryUnknownsException extends RuntimeException {}
 
     public static class UndeclaredSolutionTypeException extends RuntimeException {}
+
+    public static class ValueSolutionSetUnequalSizeException extends RuntimeException {}
 }

@@ -9,25 +9,24 @@ public record PolynomialRoots(Map<Double, Integer> rootsMap) {
     }
 
     public List<Map.Entry<Double, Integer>> getEntryList() {
-        return new ArrayList<>(this.rootsMap().entrySet());
+        return new ArrayList<>(this.rootsMap.entrySet());
     }
 
     public Set<Map.Entry<Double, Integer>> getEntrySet() {
-        return this.rootsMap().entrySet();
-    }
-
-    public List<Double> getRootsList() {
-        return new ArrayList<>(this.getRootsSet());
+        return this.rootsMap.entrySet();
     }
 
     public Set<Double> getRootsSet() {
         return this.rootsMap().keySet();
     }
 
+    public List<Double> getRootsList() {
+        return new ArrayList<>(this.getRootsSet());
+    }
+
     public Map.Entry<Double, Integer> getRoot() {
-        if (this.rootsMap().size() != 1) {
-            throw new MoreThanOneRootException("There is more than one root in this vector set");
-        }
+        if (this.getNumRoots() == 0) throw new NoRootsException();
+        else if (this.getNumRoots() != 1) throw new MoreThanOneRootException();
         return this.getEntryList().get(0);
     }
 
@@ -40,7 +39,7 @@ public record PolynomialRoots(Map<Double, Integer> rootsMap) {
         throw new NoSuchRootException();
     }
 
-    public int getSize() {
+    public int getNumRoots() {
         return this.rootsMap().size();
     }
 
@@ -113,7 +112,7 @@ public record PolynomialRoots(Map<Double, Integer> rootsMap) {
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (obj instanceof PolynomialRoots roots && roots.getSize() == this.getSize()) {
+        if (obj instanceof PolynomialRoots roots && roots.getNumRoots() == this.getNumRoots()) {
             for (Map.Entry<Double, Integer> entry : this.getEntrySet()) {
                 if (!roots.containsEntry(entry)) return false;
             }
@@ -122,23 +121,21 @@ public record PolynomialRoots(Map<Double, Integer> rootsMap) {
         return false;
     }
 
-    public static class MoreThanOneRootException extends RuntimeException {
-        MoreThanOneRootException() {
-            super();
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Roots{");
+        for (int i = 0; i < this.rootsMap.size(); i++) {
+            sb.append("(" + this.getEntryList().get(i).getKey() +
+                    " -- " + this.getEntryList().get(i).getValue() + ")");
+            if (i + 1 < this.rootsMap.size()) sb.append(", ");
         }
-
-        MoreThanOneRootException(String message) {
-            super(message);
-        }
+        sb.append("}");
+        return sb.toString();
     }
 
-    public static class NoSuchRootException extends RuntimeException {
+    public static class NoRootsException extends RuntimeException {}
 
-        public NoSuchRootException(String message) {
-            super(message);
-        }
+    public static class MoreThanOneRootException extends RuntimeException {}
 
-        public NoSuchRootException() {
-        }
-    }
+    public static class NoSuchRootException extends RuntimeException {}
 }

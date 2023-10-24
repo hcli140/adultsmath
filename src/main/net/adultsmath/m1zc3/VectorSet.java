@@ -2,19 +2,30 @@ package main.net.adultsmath.m1zc3;
 
 import java.util.*;
 
-public class VectorSet {
-    private final Set<Vector> vectors;
-    private final int dimension;
-    private final int vectorSize;
+public record VectorSet (Set<Vector> vectors) {
 
     public VectorSet(Set<Vector> vectors) {
-        this.vectorSize = new ArrayList<>(vectors).get(0).getSize();
-        vectors.forEach(vector -> {
-            if (vector.getSize() != this.getVectorSize())
-                throw new IllegalArgumentException("The vectors have different lengths");
-        });
-        this.vectors = new HashSet<>(vectors);
-        this.dimension = this.vectors.size();
+        List<Vector> vectorList = new ArrayList<>(vectors);
+        int vectorSize = vectorList.get(0).getSize();
+        if (vectors.size() != 0) {
+            int dimension = vectors.size();
+            vectors.forEach(vector -> {
+                if (vector.getSize() != vectorSize)
+                    throw new UnequalVectorSizeException();
+            });
+
+            for (int i = 0; i < dimension; i++) {
+                for (int j = i + 1; j < dimension; j++) {
+                    if (vectorList.get(i).isScalarMultiple(vectorList.get(j)))
+                        throw new LinearlyDependentVectorsException();
+                }
+            }
+
+            this.vectors = new HashSet<>(vectors);
+        }
+        else {
+            this.vectors = new HashSet<>();
+        }
     }
 
     public VectorSet(List<Vector> vectors) {
@@ -26,42 +37,43 @@ public class VectorSet {
     }
 
     public VectorSet(double... comps) {
-        Vector vector = new Vector(comps);
-        this.vectors = new HashSet<>(List.of(vector));
-        this.vectorSize = vector.getSize();
-        this.dimension = 1;
+        this(List.of(new Vector(comps)));
     }
 
-    public Set<Vector> getVectorsSet() {
-        return vectors;
+    public VectorSet() {
+        this(new HashSet<>());
     }
 
     public List<Vector> getVectorsList() {
-        return new ArrayList<>(this.getVectorsSet());
-    }
-
-    public Vector getVectorsList(int index) {
-        return this.getVectorsList().get(index);
+        if (Objects.isNull(this.vectors)) throw new EmptyVectorSetException();
+        return new ArrayList<>(this.vectors);
     }
 
     public int getDimension() {
-        return dimension;
+        return this.vectors.size();
     }
 
     public int getVectorSize() {
-        return vectorSize;
+        return this.getVectorsList().get(0).getSize();
     }
 
     public boolean contains(Vector vector) {
-        for (Vector v : this.getVectorsSet()) {
-            if (vector.isScalarMultiple(vector)) return true;
+        for (Vector v : this.vectors) {
+            if (vector.isScalarMultiple(v)) return true;
         }
         return false;
     }
 
+    public boolean containsLinearCombination(Vector vector) {
+        List<Vector> vectorList = this.getVectorsList();
+        vectorList.add(vector);
+        Matrix matrix = Matrix.createFromColumnVectors(vectorList);
+        return matrix.getSolution().solutionType() == LinearSystemSolution.SolutionType.SINGLE;
+    }
+
     public VectorSet getUnitVectorSet() {
         Set<Vector> newVectors = new HashSet<>();
-        for (Vector vector : this.getVectorsSet()) {
+        for (Vector vector : this.vectors) {
             newVectors.add(vector.getUnitVector());
         }
         return new VectorSet(newVectors);
@@ -69,7 +81,7 @@ public class VectorSet {
 
     @Override
     public String toString() {
-        List<Vector> vectorsList = new ArrayList<>(this.getVectorsSet());
+        List<Vector> vectorsList = new ArrayList<>(this.vectors);
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{");
         for (int i = 0; i < this.getDimension(); i++) {
@@ -86,7 +98,7 @@ public class VectorSet {
         if (obj instanceof VectorSet vectorSet
                 && this.getDimension() == vectorSet.getDimension()
                 && this.getVectorSize() == vectorSet.getVectorSize()) {
-            for (Vector v : this.getVectorsSet()) {
+            for (Vector v : this.vectors) {
                 if (!vectorSet.contains(v)) return false;
             }
             return true;
@@ -96,6 +108,12 @@ public class VectorSet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(vectors, dimension, vectorSize);
+        return Objects.hash(vectors);
     }
+
+    public static class UnequalVectorSizeException extends RuntimeException {}
+
+    public static class LinearlyDependentVectorsException extends RuntimeException {}
+
+    public static class EmptyVectorSetException extends RuntimeException {}
 }

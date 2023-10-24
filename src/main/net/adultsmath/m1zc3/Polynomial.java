@@ -141,6 +141,7 @@ public class Polynomial {
         double b = this.getCoeffs(1);
         double c = this.getCoeffs(0);
         double discriminant = b * b - 4 * a * c;
+        if (discriminant < 0) return new PolynomialRoots();
         PolynomialRoots roots = new PolynomialRoots();
         roots.addRoot((-b + sqrt(discriminant)) / (2 * a));
         roots.addRoot((-b - sqrt(discriminant)) / (2 * a));
@@ -186,7 +187,7 @@ public class Polynomial {
         }
 //        System.out.println(roots);
 
-        if (roots.getSize() == 1 && roots.getRoot().getValue() == 9) {
+        if (roots.getNumRoots() == 1 && roots.getRoot().getValue() == 9) {
             PolynomialRoots tempRoots = new PolynomialRoots();
             tempRoots.put(roots.getRoot().getKey(), 3);
             roots = PolynomialRoots.copyOf(tempRoots);
@@ -257,6 +258,7 @@ public class Polynomial {
         //  polynomials P and Q
         Polynomial P = new Polynomial((1.0 / 2.0) * u0, 0, 1);
         double A = sqrt(u0 - p);
+        if (Double.isNaN(A)) return new PolynomialRoots();
         Polynomial Q = new Polynomial(-q / (2 * A), A);
 
 //        System.out.println(P + "\n" + Q);

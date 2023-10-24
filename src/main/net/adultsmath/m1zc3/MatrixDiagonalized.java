@@ -56,7 +56,7 @@ public class MatrixDiagonalized {
         List<Double> dCurrentColumn;
         int columnIndex = 0;
         for (Map.Entry<VectorSet, Double> entry : this.eigenMap().entrySet()) {
-            pColumns.addAll(entry.getKey().getVectorsSet());
+            pColumns.addAll(entry.getKey().vectors());
             dCurrentColumn = new ArrayList<>();
             for (int i = 0; i < entry.getKey().getVectorSize(); i++) {
                 if (i == columnIndex) dCurrentColumn.add(entry.getValue());

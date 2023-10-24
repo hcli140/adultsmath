@@ -73,7 +73,8 @@ public class Matrix {
     }
 
     public static Matrix createIdentityMatrix(int size) {
-        if (size <= 0) throw new InvalidMatrixSizeException("Cannot create an identity matrix of size 0 or less");
+        if (size <= 0)
+            throw new InvalidMatrixSizeException("Cannot create an identity matrix of size 0 or less");
         double[][] matrix = new double[size][size];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -85,6 +86,10 @@ public class Matrix {
             }
         }
         return new Matrix(matrix);
+    }
+
+    public static Matrix createFromColumnVectors(List<Vector> vectors) {
+        return new Matrix(vectors).getTransposeMatrix();
     }
 
     public List<Vector> getEntries() {
@@ -201,12 +206,12 @@ public class Matrix {
             }
             return m;
         } else {
-            throw new IllegalArgumentException("The indicated row does not exist");
+            throw new NoSuchRowException("Row with index " + r + " does not exist");
         }
     }
 
-    private Matrix getWithRemovedBottomRow() {
-        return this.getWithRemovedRow(this.numRows);
+    public Matrix getWithRemovedBottomRow() {
+        return this.getWithRemovedRow(this.numRows - 1);
     }
 
     private Matrix getWithRemovedColumn(int c) {
@@ -237,7 +242,9 @@ public class Matrix {
     }
 
     private void addTwoRows(int targetRow, int sourceRow, double k) {
-        entries.set(targetRow, Operator.add(Operator.scalMult(k, this.getRow(sourceRow)), this.getRow(targetRow)));
+        entries.set(targetRow,
+                Operator.add(Operator.scalMult(k, this.getRow(sourceRow))
+                        , this.getRow(targetRow)));
     }
 
     private void setLeadingNumOne(int row) {
@@ -258,11 +265,11 @@ public class Matrix {
                 double diffToZero = abs(getEntry(i, j));
                 double diffToOne = abs(getEntry(i, j) - 1);
                 //  is zero
-                if (diffToZero <= 1E-7) {
+                if (diffToZero <= 1E-5) {
                     entries.set(i, getRow(i).getReplace(j, 0));
                 }
                 //  is one
-                else if (diffToOne <= 1E-7) {
+                else if (diffToOne <= 1E-5) {
                     entries.set(i, getRow(i).getReplace(j, 1));
                 }
             }
@@ -420,7 +427,8 @@ public class Matrix {
             if (!row.isZero()) numPivots++;
         }
         int numUnknowns = reduced.getNumColumns() - 1;
-        if (numPivots == numUnknowns) return new LinearSystemSolution(reduced.getRightMostColumn().getTruncated(numPivots));
+        if (numPivots == numUnknowns)
+            return new LinearSystemSolution(reduced.getRightMostColumn().getTruncated(numPivots));
 
         //  infinite solutions ---> find the vector space
         //  find the indices of unknowns that are explicitly defined
@@ -540,7 +548,9 @@ public class Matrix {
     //  test if linear system is consistent
     public boolean isConsistent() {
         for (Vector row : this.getEntries()) {
-            if (row.getWithoutIndex(numColumns - 1).isZero() && abs(row.getComps(numColumns - 1)) > 1E-7) return false;
+            if (row.getWithoutIndex(numColumns - 1).isZero()
+                    && abs(row.getComps(numColumns - 1)) > 1E-7)
+                return false;
         }
         return true;
     }
@@ -589,7 +599,9 @@ public class Matrix {
     //  of a 2x2
     private double getDet2X2() {
         if (numRows == 2 && numColumns == 2) {
-            return getEntry(0, 0) * getEntry(1, 1) - getEntry(0, 1) * getEntry(1, 0);
+            return getEntry(0, 0)
+                    * getEntry(1, 1) - getEntry(0, 1)
+                    * getEntry(1, 0);
         } else {
             throw new InvalidDimensionsException("This method is for 2x2 matrices only");
         }
@@ -598,7 +610,8 @@ public class Matrix {
     //  get the minor's determinant
     public double getMinorDeterminant(int r, int c) {
         if (!this.isSquare())
-            throw new InvalidDimensionsException("Cannot get the minor's determinant because the matrix is not square");
+            throw new InvalidDimensionsException(
+                    "Cannot get the minor's determinant because the matrix is not square");
         else if (r > numRows || c > numColumns)
             throw new IllegalArgumentException("The indicated row or column does not exist");
         else {
@@ -680,7 +693,8 @@ public class Matrix {
                     "Cannot get the lambda * I - A polynomial matrix of a non-square matrix");
     }
 
-    //  find the eigenvalues by solving for the rootsMap of the characteristic polynomial, det(lambda * I - A)
+    //  find the eigenvalues by solving for the
+    //  roots of the characteristic polynomial, det(lambda * I - A)
     public PolynomialRoots getEigenValues() {
         return getLambdaIMinusAMatrix().det().getRoots();
     }
@@ -692,10 +706,11 @@ public class Matrix {
         Map<VectorSet, Double> eigenMap = new HashMap<>();
 
         for (Map.Entry<Double, Integer> eigenvalueEntry : eigenvalues.getEntrySet()) {
-            List<Vector> eigenvectorList = this.getLambdaIMinusAMatrix().eval(eigenvalueEntry.getKey())
+            List<Vector> eigenvectorList =
+                    this.getLambdaIMinusAMatrix().eval(eigenvalueEntry.getKey())
                     .getWithAppendedColumn(Vector.createZeroVector(this.getNumRows()))
                     .getSolution()
-                    .getSolutionSet()
+                    .solutionSet()
                     .getVectorsList();
             if (eigenvalueEntry.getValue() != eigenvectorList.size())
                 throw new NotDiagonalizeableException("This matrix is not diagonalizeable");
@@ -784,6 +799,12 @@ public class Matrix {
 
     public static class InvalidMatrixSizeException extends RuntimeException {
         public InvalidMatrixSizeException(String message) {
+            super(message);
+        }
+    }
+
+    public static class NoSuchRowException extends RuntimeException {
+        public NoSuchRowException(String message) {
             super(message);
         }
     }
