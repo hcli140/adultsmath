@@ -1,4 +1,4 @@
-package main.net.adultsmath.m1zc3;
+package main.net.adultsmath;
 
 public class InvalidDimensionsException extends RuntimeException {
     public InvalidDimensionsException() {

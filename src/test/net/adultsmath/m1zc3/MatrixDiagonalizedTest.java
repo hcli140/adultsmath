@@ -1,8 +1,8 @@
 package test.net.adultsmath.m1zc3;
 
-import main.net.adultsmath.m1zc3.MatrixDiagonalized;
-import main.net.adultsmath.m1zc3.Vector;
-import main.net.adultsmath.m1zc3.VectorSet;
+import main.net.adultsmath.MatrixDiagonalized;
+import main.net.adultsmath.Vector;
+import main.net.adultsmath.VectorSet;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;

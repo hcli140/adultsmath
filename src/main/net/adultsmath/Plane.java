@@ -1,7 +1,4 @@
-package main.net.adultsmath.m1zc3.r3;
-
-import main.net.adultsmath.m1zc3.Operator;
-import main.net.adultsmath.m1zc3.Vector;
+package main.net.adultsmath;
 
 public class Plane {
     private final Vector n;

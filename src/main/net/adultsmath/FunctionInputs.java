@@ -1,6 +1,4 @@
-package main.net.adultsmath.m1zc3;
-
-import main.net.adultsmath.Variable;
+package main.net.adultsmath;
 
 import java.util.Map;
 import java.util.Objects;

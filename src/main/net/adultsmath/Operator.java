@@ -1,6 +1,4 @@
-package main.net.adultsmath.m1zc3;
-
-import main.net.adultsmath.ComplexNumber;
+package main.net.adultsmath;
 
 import java.util.ArrayList;
 import java.util.List;

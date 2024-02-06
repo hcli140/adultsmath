@@ -1,4 +1,4 @@
-package main.net.adultsmath.m1zc3;
+package main.net.adultsmath;
 
 import static java.lang.Math.*;
 

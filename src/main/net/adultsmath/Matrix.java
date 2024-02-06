@@ -1,4 +1,4 @@
-package main.net.adultsmath.m1zc3;
+package main.net.adultsmath;
 
 import java.util.*;
 
@@ -572,7 +572,6 @@ public class Matrix {
     public Matrix getTransposeMatrix() {
         Matrix newMatrix = Matrix.createZeroMatrix(this.numColumns, this.numRows);
         for (int i = 0; i < this.numColumns; i++) {
-            //System.out.println(a.getColumn(i).display());
             newMatrix.entries.set(i, this.getColumn(i));
         }
         return newMatrix;

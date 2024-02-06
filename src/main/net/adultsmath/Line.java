@@ -1,9 +1,4 @@
-package main.net.adultsmath.m1zc3.r3;
-
-import main.net.adultsmath.m1zc3.Operator;
-import main.net.adultsmath.m1zc3.Vector;
-
-import java.util.List;
+package main.net.adultsmath;
 
 public class Line {
     private final Point p0;

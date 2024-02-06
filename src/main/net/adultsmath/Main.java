@@ -1,10 +1,5 @@
 package main.net.adultsmath;
 
-import main.net.adultsmath.m1zc3.*;
-
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class Main {
     public static void main(String[] args) {

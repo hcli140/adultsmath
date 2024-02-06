@@ -1,6 +1,5 @@
 package test.net.adultsmath.Expression;
 
-import main.net.adultsmath.Expression;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

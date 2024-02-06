@@ -1,8 +1,5 @@
-package main.net.adultsmath.m1zc3.r3;
+package main.net.adultsmath;
 
-import main.net.adultsmath.m1zc3.Vector;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class Point {

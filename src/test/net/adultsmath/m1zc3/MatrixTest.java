@@ -1,7 +1,7 @@
 package test.net.adultsmath.m1zc3;
 
-import main.net.adultsmath.m1zc3.*;
-import main.net.adultsmath.m1zc3.Vector;
+import main.net.adultsmath.*;
+import main.net.adultsmath.Vector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
